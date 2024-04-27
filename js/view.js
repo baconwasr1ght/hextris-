@@ -18,44 +18,65 @@ function renderText(x, y, fontSize, color, text, font) {
 }
 
 function drawScoreboard() {
-	if (scoreOpacity < 1) {
-		scoreOpacity += 0.01;
-		textOpacity += 0.01;
-	}
-	ctx.globalAlpha = textOpacity;
-	var scoreSize = 50;
-	var scoreString = String(score);
-	if (scoreString.length == 6) {
-		scoreSize = 43;
-	} else if (scoreString.length == 7) {
-		scoreSize = 35;
-	} else if (scoreString.length == 8) {
-		scoreSize = 31;
-	} else if (scoreString.length == 9) {
-		scoreSize = 27;
-	}
-	//if (rush ==1){
-		var color = "rgb(236, 240, 241)";
-	//}
+    if (scoreOpacity < 1) {
+        scoreOpacity += 0.01;
+        textOpacity += 0.01;
+    }
+    ctx.globalAlpha = textOpacity;
+    var scoreSize = 50;
+    var scoreString = String(score);
+    if (scoreString.length == 6) {
+        scoreSize = 43;
+    } else if (scoreString.length == 7) {
+        scoreSize = 35;
+    } else if (scoreString.length == 8) {
+        scoreSize = 31;
+    } else if (scoreString.length == 9) {
+        scoreSize = 27;
+    }
+    var color = "rgb(237,240,241)";
     var fontSize = settings.platform == 'mobile' ? 35 : 30;
     var h = trueCanvas.height / 2 + gdy + 100 * settings.scale;
-	if (gameState === 0) {
-		renderText(trueCanvas.width / 2 + gdx + 6 * settings.scale, trueCanvas.height / 2 + gdy, 60, "rgb(236, 240, 241)", String.fromCharCode("0xf04b"), 'px FontAwesome');
-		renderText(trueCanvas.width / 2 + gdx + 6 * settings.scale, trueCanvas.height / 2.1 + gdy - 155 * settings.scale, 150, "#2c3e50", "Hextris");
-		renderText(trueCanvas.width / 2 + gdx + 5 * settings.scale, h + 10, fontSize, "rgb(44,62,80)", 'Play!');
-	} else if (gameState != 0 && textOpacity > 0) {
-		textOpacity -= 0.05;
-		renderText(trueCanvas.width / 2 + gdx + 6 * settings.scale, trueCanvas.height / 2 + gdy, 60, "rgb(236, 240, 241)", String.fromCharCode("0xf04b"), 'px FontAwesome');
-		renderText(trueCanvas.width / 2 + gdx + 6 * settings.scale, trueCanvas.height / 2 + gdy - 155 * settings.scale, 150, "#2c3e50", "Hextris");
-		renderText(trueCanvas.width / 2 + gdx + 5 * settings.scale, h, fontSize, "rgb(44,62,80)", 'Play!');
-		ctx.globalAlpha = scoreOpacity;
-		renderText(trueCanvas.width / 2 + gdx, trueCanvas.height / 2 + gdy, scoreSize, color, score);
-	} else {
-		ctx.globalAlpha = scoreOpacity;
-		renderText(trueCanvas.width / 2 + gdx, trueCanvas.height / 2 + gdy, scoreSize, color, score);
-	}
+    var hextrisText = "Hextris";
+    var plusSign = "+";
+    var hextrisSize = 150; // The font size for "Hextris"
+    var plusOffset = 17; // Adjust this value to move the "+" left (-) or right (+)
 
-	ctx.globalAlpha = 1;
+
+    if (gameState === 0) {
+        // Render "Hextris" part centered
+        var hextrisX = trueCanvas.width / 2 + gdx;
+        var hextrisY = trueCanvas.height / 2.1 + gdy - 155 * settings.scale;
+        renderText(hextrisX, hextrisY, hextrisSize, "#2c3e50", hextrisText);
+
+        // Correctly calculate the "+" sign position
+        ctx.font = hextrisSize * settings.scale + 'px Exo'; // Set font to measure correctly
+        var hextrisWidth = ctx.measureText(hextrisText).width;
+        var plusX = hextrisX + hextrisWidth / 2 + plusOffset;
+        // Render "+" part in white
+        renderText(plusX, hextrisY, hextrisSize, "#ffdf00", plusSign);
+
+        renderText(hextrisX, h + 10, fontSize, "rgb(44,62,80)", 'Play!');
+    } else if (gameState != 0 && textOpacity > 0) {
+        textOpacity -= 0.05; 
+    // Render "Hextris" part
+    renderText(trueCanvas.width / 2 + gdx + 6 * settings.scale, trueCanvas.height / 2 + gdy, 60, "rgb(236, 240, 241)", String.fromCharCode("0xf04b"), 'px FontAwesome');
+    renderText(trueCanvas.width / 2 + gdx, trueCanvas.height / 2 + gdy - 155 * settings.scale, hextrisSize, "#2c3e50", hextrisText);
+    var hextrisWidth = ctx.measureText(hextrisText).width;
+
+    // Render "+" part in white, right after "Hextris" with a manual offset
+    renderText(trueCanvas.width / 2 + gdx + hextrisWidth + manualOffset, trueCanvas.height / 2 + gdy - 155 * settings.scale, hextrisSize, "#FFFFFF", plusSign);
+    
+    renderText(trueCanvas.width / 2 + gdx + 5 * settings.scale, h, fontSize, "rgb(44,62,80)", 'Play!');
+    
+    ctx.globalAlpha = scoreOpacity;
+    renderText(trueCanvas.width / 2 + gdx, trueCanvas.height / 2 + gdy, scoreSize, color, score);
+} else {
+    ctx.globalAlpha = scoreOpacity;
+    renderText(trueCanvas.width / 2 + gdx, trueCanvas.height / 2 + gdy, scoreSize, color, score);
+}
+
+ctx.globalAlpha = 1;
 }
 
 function clearGameBoard() {
@@ -95,10 +116,8 @@ function toggleClass(element, active) {
 
 function showText(text) {
 	var messages = {
-		'paused': "<div class='centeredHeader unselectable'>Game Paused</div>",
-		'pausedAndroid': "<div class='centeredHeader unselectable'>Game Paused</div><div class='unselectable centeredSubHeader' style='position:absolute;margin-left:-150px;left:50%;margin-top:20px;width:300px;font-size:16px;'><a href = 'https://play.google.com/store/apps/details?id=com.hextris.hextrisadfree' target='_blank'Want to support the developers? Don't like ads? Tap for Hextris ad-free!</a></div>",
-		'pausediOS': "<div class='centeredHeader unselectable'>Game Paused</div><div class='unselectable centeredSubHeader' style='position:absolute;margin-left:-150px;left:50%;margin-top:20px;width:300px;font-size:16px;'><a href = 'https://itunes.apple.com/us/app/hextris-ad-free/id912895524?mt=8' target='_blank'>Want to support the developers? Don't like ads? Tap for Hextris ad-free!</a></div>",
-		'pausedOther': "<div class='centeredHeader unselectable'>Game Paused</div><div class='unselectable centeredSubHeader' style='margin-top:10px;position:absolute;left:50%;margin-left:-190px;max-width:380px;font-size:18px;'><a href = 'http://hextris.github.io/' target='_blank'>Want to support the developers? Click here to buy one of the ad-free mobile versions!</a></div>",
+		'paused': "<div class='centeredHeader unselectable'>Game Paused, press P to unpause</div>",
+		'pausedOther': "<div class='centeredHeader unselectable'>Game Paused, press P to unpause</div>",
 		'start': "<div class='centeredHeader unselectable' style='line-height:80px;'>Press enter to start</div>"
 	};
 
@@ -166,6 +185,8 @@ function updateHighScores (){
     $("#1place").text(highscores[0]);
     $("#2place").text(highscores[1]);
     $("#3place").text(highscores[2]);
+    $("#4place").text(highscores[3]);
+    $("#5place").text(highscores[4]);	
 }
 
 var pausable = true;

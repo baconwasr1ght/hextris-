@@ -1,0 +1,84 @@
+to get the highscore, you can use this:
+
+@app.route('/highscores')
+def high_scores():
+    """Endpoint for retrieving high scores."""
+    scores = read_high_scores('assets/highscores.xml')  # Provide the correct path to your highscores.xml file
+    return jsonify(scores)
+
+def read_high_scores(filename):
+    """Read the high scores from an XML file and return the top 5."""
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(base_path, filename)
+    scores = []
+    try:
+        tree = etree.parse(path)
+        root = tree.getroot()
+        for score in root.findall('.//score'):  # Assuming 'score' elements are direct children
+            scores.append(int(score.text))
+    except etree.XMLSyntaxError as e:
+        app.logger.error(f"XMLSyntaxError: {e}")
+        return []
+    except Exception as e:
+        app.logger.error(f"Exception: {e}")
+        return []
+
+    scores.sort(reverse=True)
+    top_scores = scores[:5]
+    return top_scores
+
+to save the highscores:
+
+@app.route('/submit_score', methods=['POST'])
+def submit_score():
+    # Get the new score from the request's JSON
+    new_score = request.json.get('score', 0)
+
+    # Path to the highscores.xml file
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    highscores_path = os.path.join(base_path, 'assets/highscores.xml')
+
+    # Read the existing high scores
+    try:
+        tree = etree.parse(highscores_path)
+        root = tree.getroot()
+
+        # Create a new score element
+        score_element = etree.Element('score')
+        score_element.text = str(new_score)
+
+        # Append the new score to the root of the XML document
+        root.append(score_element)
+
+        # Sort all scores (simple sort, since this is a tech demo/MVP)
+        all_scores = sorted([int(score.text) for score in root.findall('.//score')], reverse=True)
+
+        # Keep only the top 5 scores
+        top_scores = all_scores[:5]
+
+        # Clear the existing scores and add the top scores back
+        root.clear()
+        for score in top_scores:
+            score_element = etree.Element('score')
+            score_element.text = str(score)
+            root.append(score_element)
+
+        # Write the updated XML back to the file
+        tree.write(highscores_path, pretty_print=True, xml_declaration=True, encoding='UTF-8')
+        # If everything went well
+        return jsonify(success=True), 200
+    except Exception as e:
+        app.logger.error(f"Exception: {e}")
+        return jsonify(success=False, error=str(e)), 500
+
+
+example XML:
+
+<?xml version='1.0' encoding='UTF-8'?>
+<highscores>
+  <score>5240</score>
+  <score>5240</score>
+  <score>5240</score>
+  <score>5240</score>
+  <score>5240</score>
+</highscores>

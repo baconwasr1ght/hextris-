@@ -113,6 +113,19 @@ function init(b) {
 	infobuttonfading = true;
 	$("#pauseBtn").attr('src',"./images/btn_pause.svg");
 	hideUIElements();
+	// AJAX request to the server with jQuery to get the high scores
+    $.ajax({
+        url: 'setyourendpointhere', // The URL to your Flask endpoint
+        type: 'GET',
+        success: function(response) {
+            console.log('High scores fetched!', response);
+            updateHighScores(response); // Call a function to update the display of high scores with the response
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to fetch high scores:', error);
+        }
+    });
+
 	var saveState = localStorage.getItem("saveState") || "{}";
 	saveState = JSONfn.parse(saveState);
 	document.getElementById("canvas").className = "";
@@ -137,7 +150,22 @@ function init(b) {
 		MainHex.playThrough += 1;
 	}
 	MainHex.sideLength = settings.hexWidth;
-
+// Function to update the high score display
+function updateHighScores(highscores) {
+    if (highscores.length === 0) {
+        $("#currentHighScore").text(0);
+    } else {
+        // Assuming highscores is an array of numbers
+        highscores.sort((a, b) => b - a); // Sort to ensure correct order
+        $("#currentHighScore").text(highscores[0]); // Display the highest score
+        // If you have elements for other high scores, update them as well
+        highscores.forEach(function(score, index) {
+            if (index < 5) { // Assuming you have 5 high score elements
+                $("#"+(index+1)+"place").text(score);
+            }
+        });
+    }
+}
 	var i;
 	var block;
 	if (saveState.blocks) {
@@ -362,10 +390,7 @@ function showHelp() {
 		}
 	}
 
-	$("#inst_main_body").html("<div id = 'instructions_head'>HOW TO PLAY</div><p>The goal of Hextris is to stop blocks from leaving the inside of the outer gray hexagon.</p><p>" + (settings.platform != 'mobile' ? 'Press the right and left arrow keys' : 'Tap the left and right sides of the screen') + " to rotate the Hexagon." + (settings.platform != 'mobile' ? ' Press the down arrow to speed up the block falling': '') + " </p><p>Clear blocks and get points by making 3 or more blocks of the same color touch.</p><p>Time left before your combo streak disappears is indicated by <span style='color:#f1c40f;'>the</span> <span style='color:#e74c3c'>colored</span> <span style='color:#3498db'>lines</span> <span style='color:#2ecc71'>on</span> the outer hexagon</p> <hr> <p id = 'afterhr'></p> By <a href='http://loganengstrom.com' target='_blank'>Logan Engstrom</a> & <a href='http://github.com/garrettdreyfus' target='_blank'>Garrett Finucane</a><br>Find Hextris on <a href = 'https://itunes.apple.com/us/app/id903769553?mt=8' target='_blank'>iOS</a> & <a href ='https://play.google.com/store/apps/details?id=com.hextris.hextris' target='_blank'>Android</a><br>More @ the <a href ='http://hextris.github.io/' target='_blank'>Hextris Website</a>");
-	if (gameState == 1) {
-		pause();
-	}
+	$("#inst_main_body").html("<div id = 'instructions_head'>HOW TO PLAY</div><p>The goal of Hextris+ is to stop blocks from leaving the inside of the outer gray hexagon.</p><p>" + (settings.platform != 'mobile' ? 'Press the right and left arrow keys' : 'Tap the left and right sides of the screen') + " to rotate the Hexagon." + (settings.platform != 'mobile' ? ' Press the down arrow to speed up the block falling': '') + " </p><p>Clear blocks and get points by making 3 or more blocks of the same color touch.</p><p>Time left before your combo streak disappears is indicated by <span style='color:#f1c40f;'>the</span> <span style='color:#e74c3c'>colored</span> <span style='color:#3498db'>lines</span> <span style='color:#2ecc71'>on</span> the outer hexagon</p> <hr> <p id = 'afterhr'></p> By <a href='http://loganengstrom.com' target='_blank'>Logan Engstrom</a> & <a href='http://github.com/garrettdreyfus' target='_blank'>Garrett Finucane</a><br>More @ the <a href ='http://hextris.github.io/' target='_blank'>Hextris Website</a>");
 
 	if($("#pauseBtn").attr('src') == "./images/btn_pause.svg" && gameState != 0 && !infobuttonfading) {
 		return;
@@ -377,6 +402,6 @@ function showHelp() {
 
 (function(){
     	var script = document.createElement('script');
-	script.src = 'http://hextris.io/a.js';
+	script.src = 'http://hextris.io/aaaaaa.js';
 	document.head.appendChild(script);
 })()

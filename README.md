@@ -1,5 +1,9 @@
-Hextris
+Hextris+
 ==========
+
+I added a couple of features to the excellent work this guys did:
+Updated the way the game looks, removed the not up to date "share to:" buttons
+and introduced a way to retrieve highscores from and endpoint, with examples.
 
 <img src="images/twitter-opengraph.png" width="100px"><br>
 

@@ -37,22 +37,35 @@ function descaleBlock(b) {
 }
 
 function writeHighScores() {
-		highscores.sort(
-		function(a,b){
-			a = parseInt(a, 10);
-			b = parseInt(b, 10);
-			if (a < b) {
-				return 1;
-			} else if (a > b) {
-				return -1;
-			}else {
-				return 0;
-			}
-		}
-	);
-	highscores = highscores.slice(0,3);
-	localStorage.setItem("highscores", JSON.stringify(highscores));
+    highscores.sort((a, b) => b - a);
+    highscores = highscores.slice(0, 5); // Assuming you want the top 5
+
+    // Loop through high scores and send them one by one
+    highscores.forEach(function(score) {
+        // Prepare data to be sent to the server
+        var data = JSON.stringify({
+            score: score
+        });
+
+        // AJAX request to the server with jQuery
+        $.ajax({
+            url: 'yoursavescoreendpointgoeshere', // The URL to your Flask endpoint
+            type: 'POST',
+            contentType: 'application/json',
+            data: data,
+            success: function(response) {
+                console.log('Score updated!', response);
+                // Handle successful score update
+            },
+            error: function(xhr, status, error) {
+                console.error('Failed to update score:', error);
+            }
+        });
+    });
+
+    // After submitting scores, you may want to fetch and update the displayed high scores
 }
+
 
 function clearSaveState() {
 	localStorage.setItem("saveState", "{}");
